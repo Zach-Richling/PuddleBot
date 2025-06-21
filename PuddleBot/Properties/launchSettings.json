@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PuddleBot": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
