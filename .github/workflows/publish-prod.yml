@@ -20,6 +20,6 @@ jobs:
         with:
           push: true
           context: .
-          file: DiscordMusicBot.Runner/Dockerfile
+          file: PuddleBot/Dockerfile
           tags: puddlebuddy/puddle-bot
         
