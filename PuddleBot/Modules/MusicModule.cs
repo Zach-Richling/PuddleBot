@@ -41,7 +41,12 @@ namespace PuddleBot.Modules
         };
 
         [SlashCommand("play", "Play a track.", Contexts = [InteractionContextType.Guild])]
-        public async Task Play(string url)
+        public async Task Play(string url) => await Play(url, false);
+
+        [SlashCommand("play-top", "Play a track at the top of the queue.", Contexts = [InteractionContextType.Guild])]
+        public async Task PlayTop(string url) => await Play(url, true);
+
+        private async Task Play(string url, bool top)
         {
             await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Loading));
             var guild = Context.Guild!;
@@ -82,7 +87,7 @@ namespace PuddleBot.Modules
 
             if (tracks.IsFailed)
             {
-                await FollowupAsync(EmbedMessage(tracks.Exception?.Message ?? "Couldn't load tracks."));
+                await FollowupAsync(EmbedMessage($"Error: {tracks.Exception?.Message}"));
                 return;
             }
 
@@ -95,8 +100,15 @@ namespace PuddleBot.Modules
             var isValidUri = Uri.TryCreate(url, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
             foreach (var track in tracks.Tracks)
             {
-                await player.PlayAsync(track);
-                
+                if (top) 
+                {
+                    await player.Queue.InsertAsync(0, new TrackQueueItem(track));
+                } 
+                else 
+                {
+                    await player.PlayAsync(track);
+                }
+
                 if (!isValidUri)
                 {
                     break;
@@ -200,6 +212,60 @@ namespace PuddleBot.Modules
             builder.AppendLine($"Total Time: {totalDuration:hh\\:mm\\:ss}");
 
             await FollowupAsync(EmbedMessage(builder.ToString()));
+        }
+
+        [SlashCommand("clear", "Clears the queue.", Contexts = [InteractionContextType.Guild])]
+        public async Task Clear()
+        {
+            await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Loading));
+
+            var guild = Context.Guild!;
+
+            var playerResult = await musicContext.AudioService.Players.RetrieveAsync(
+                guild.Id,
+                null,
+                playerFactory: PlayerFactory.Queued,
+                options: playerOptions,
+                retrieveOptions: retrieveOptions
+            );
+
+            if (!playerResult.IsSuccess)
+            {
+                await FollowupAsync(EmbedMessage(GetErrorMessage(playerResult.Status)));
+                return;
+            }
+
+            var player = playerResult.Player;
+            var queueCount = player.Queue.Count;
+
+            await player.Queue.RemoveRangeAsync(0, queueCount);
+            await FollowupAsync(EmbedMessage($"Cleared: {queueCount} tracks"));
+        }
+
+        [SlashCommand("shuffle", "Shuffles the queue.", Contexts = [InteractionContextType.Guild])]
+        public async Task Shuffle()
+        {
+            await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Loading));
+
+            var guild = Context.Guild!;
+
+            var playerResult = await musicContext.AudioService.Players.RetrieveAsync(
+                guild.Id,
+                null,
+                playerFactory: PlayerFactory.Queued,
+                options: playerOptions,
+                retrieveOptions: retrieveOptions
+            );
+
+            if (!playerResult.IsSuccess)
+            {
+                await FollowupAsync(EmbedMessage(GetErrorMessage(playerResult.Status)));
+                return;
+            }
+
+            var player = playerResult.Player;
+            player.Shuffle = !player.Shuffle;
+            await FollowupAsync(EmbedMessage($"Shuffle: {(player.Shuffle ? "On" : "Off")}"));
         }
 
         private static string GetErrorMessage(PlayerRetrieveStatus retrieveStatus) => retrieveStatus switch
