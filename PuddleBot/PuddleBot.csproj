@@ -9,7 +9,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Lavalink4NET.NetCord" Version="4.0.27" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="NetCord.Hosting" Version="1.0.0-alpha.389" />
+    <PackageReference Include="NetCord.Hosting.AspNetCore" Version="1.0.0-alpha.389" />
+    <PackageReference Include="NetCord.Hosting.Services" Version="1.0.0-alpha.389" />
+    <PackageReference Include="NetCord.Services" Version="1.0.0-alpha.389" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
