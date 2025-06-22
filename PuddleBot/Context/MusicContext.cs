@@ -17,6 +17,7 @@ namespace PuddleBot.Context
         public MusicContext(IAudioService audioService, RestClient restClient)
         {
             audioService.TrackStarted += TrackStartedHandler;
+            audioService.TrackException += TrackExceptionHandler;
             AudioService = audioService;
             this.restClient = restClient;
         }
@@ -31,8 +32,6 @@ namespace PuddleBot.Context
                 }
             ]
         };
-
-        //TODO: Add TrackErrorHandler
         private async Task TrackStartedHandler(object sender, TrackStartedEventArgs args)
         {
             if (NowPlayingChannels.TryGetValue(args.Player.GuildId, out var value))
@@ -52,6 +51,17 @@ namespace PuddleBot.Context
                         (channelId, newMessageId.Id),
                         value
                     );
+                }
+            }
+        }
+
+        private async Task TrackExceptionHandler(object sender, TrackExceptionEventArgs args)
+        {
+            if (NowPlayingChannels.TryGetValue(args.Player.GuildId, out var value))
+            {
+                if (value.channelId is ulong channelId)
+                {
+                    await restClient.SendMessageAsync(channelId, EmbedMessage($"Error: {args.Track.IconTitle()}. {args.Exception.Message}"));
                 }
             }
         }
