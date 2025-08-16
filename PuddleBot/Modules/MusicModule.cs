@@ -79,6 +79,20 @@ namespace PuddleBot.Modules
             await FollowupAsync(EmbedMessage($"Track has been resumed"));
         }
 
+        [SlashCommand("stop", "Stops playing tracks.", Contexts = [InteractionContextType.Guild])]
+        public async Task Stop()
+        {
+            await RespondLoadingAsync();
+            var playerResult = await GetPlayerAsync();
+            if (!playerResult.IsSuccess)
+                return;
+
+            var player = playerResult.Player;
+            await player.StopAsync();
+
+            await FollowupAsync(EmbedMessage($"Stopped playback and cleared the queue."));
+        }
+
         [SlashCommand("skip", "Skip the current track.", Contexts = [InteractionContextType.Guild])]
         public async Task Skip()
         {
