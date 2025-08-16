@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuddleBot", "PuddleBot\PuddleBot.csproj", "{ADE824A2-FDB4-4801-84A4-99FFD4822384}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuddleBot.AppHost", "PuddleBot.AppHost\PuddleBot.AppHost.csproj", "{682D2A93-2596-4A9F-8ABD-324899ECF9E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PuddleBot.ServiceDefaults", "PuddleBot.ServiceDefaults\PuddleBot.ServiceDefaults.csproj", "{1C12D13C-8652-85C8-1E33-64871054E9DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{ADE824A2-FDB4-4801-84A4-99FFD4822384}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADE824A2-FDB4-4801-84A4-99FFD4822384}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADE824A2-FDB4-4801-84A4-99FFD4822384}.Release|Any CPU.Build.0 = Release|Any CPU
+		{682D2A93-2596-4A9F-8ABD-324899ECF9E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{682D2A93-2596-4A9F-8ABD-324899ECF9E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{682D2A93-2596-4A9F-8ABD-324899ECF9E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{682D2A93-2596-4A9F-8ABD-324899ECF9E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C12D13C-8652-85C8-1E33-64871054E9DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C12D13C-8652-85C8-1E33-64871054E9DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C12D13C-8652-85C8-1E33-64871054E9DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C12D13C-8652-85C8-1E33-64871054E9DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -175,11 +175,11 @@ namespace PuddleBot.Modules
             await FollowupAsync(EmbedMessage($"Shuffle: {(player.Shuffle ? "On" : "Off")}"));
         }
 
-        private async Task<PlayerResult<QueuedLavalinkPlayer>> GetPlayerAsync()
+        private async Task<PlayerResult<QueuedLavalinkPlayer>> GetPlayerAsync(ulong? channelId = null)
         {
             var playerResult = await musicContext.AudioService.Players.RetrieveAsync(
                 Context.Guild!.Id,
-                null,
+                channelId,
                 playerFactory: PlayerFactory.Queued,
                 options: playerOptions,
                 retrieveOptions: retrieveOptions
@@ -214,7 +214,7 @@ namespace PuddleBot.Modules
 
             var client = Context.Client;
 
-            var playerResult = await GetPlayerAsync();
+            var playerResult = await GetPlayerAsync(voiceState.ChannelId);
             if (!playerResult.IsSuccess)
                 return;
 

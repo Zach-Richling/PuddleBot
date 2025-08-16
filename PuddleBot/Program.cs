@@ -4,7 +4,6 @@ using Lavalink4NET.NetCord;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
@@ -26,6 +25,8 @@ namespace PuddleBot
             VerifyRequiredConfiguration(builder.Configuration);
             WarnOptionalConfiguration(builder.Configuration);
 
+            builder.AddServiceDefaults();
+
             builder.Services
                 .AddDiscordGateway(opt =>
                 {
@@ -35,12 +36,12 @@ namespace PuddleBot
                 .AddLavalink()
                 .ConfigureLavalink(opt =>
                 {
-                    opt.BaseAddress = new Uri(builder.Configuration["Lavalink:BaseAddress"]!);
+                    //If running locally, aspire will provide the lavalink server address
+                    var aspireLavalink = builder.Configuration.GetValue<string?>("services:lavalink:http:0");
+                    opt.BaseAddress = new Uri(aspireLavalink ?? builder.Configuration["Lavalink:BaseAddress"]!);
                     opt.Passphrase = builder.Configuration["Lavalink:Password"]!;
                 })
                 .AddSingleton<MusicContext>();
-
-
 
             var host = builder.Build()
                 .AddModules(typeof(Program).Assembly)
