@@ -22,14 +22,18 @@ var lavalink = builder.AddContainer("lavalink", "fredboat/lavalink")
         context.EnvironmentVariables["PLUGINS_YOUTUBE_CLIENTS_1"] = "ANDROID_VR";
         context.EnvironmentVariables["PLUGINS_YOUTUBE_CLIENTS_2"] = "WEB";
         context.EnvironmentVariables["PLUGINS_YOUTUBE_CLIENTS_3"] = "WEBEMBEDDED";
-        context.EnvironmentVariables["LAVALINK_PLUGINS_1_DEPENDENCY"] = "com.github.topi314.lavasrc:lavasrc-plugin:4.7.1";
-        context.EnvironmentVariables["PLUGINS_LAVASRC_SOURCES_SPOTIFY"] = true;
-        context.EnvironmentVariables["PLUGINS_LAVASRC_SOURCES_APPLEMUSIC"] = true;
-    
-        context.EnvironmentVariables["PLUGINS_LAVASRC_SPOTIFY_CLIENTID"] = builder.Configuration["Spotify:ClientId"]
-            ?? throw new InvalidOperationException("Lavalink:Password is not configured.");
-        context.EnvironmentVariables["PLUGINS_LAVASRC_SPOTIFY_CLIENTSECRET"] = builder.Configuration["Spotify:ClientSecret"]
-            ?? throw new InvalidOperationException("Lavalink:Password is not configured.");
+
+        var spotifyClientId = builder.Configuration["Spotify:ClientId"];
+        var spotifyClientSecret = builder.Configuration["Spotify:ClientSecret"];
+
+        if (!string.IsNullOrEmpty(spotifyClientId) && !string.IsNullOrEmpty(spotifyClientSecret))
+        {
+            context.EnvironmentVariables["LAVALINK_PLUGINS_1_DEPENDENCY"] = "com.github.topi314.lavasrc:lavasrc-plugin:4.7.1";
+            context.EnvironmentVariables["PLUGINS_LAVASRC_SOURCES_SPOTIFY"] = true;
+            context.EnvironmentVariables["PLUGINS_LAVASRC_SOURCES_APPLEMUSIC"] = true;
+            context.EnvironmentVariables["PLUGINS_LAVASRC_SPOTIFY_CLIENTID"] = spotifyClientId;
+            context.EnvironmentVariables["PLUGINS_LAVASRC_SPOTIFY_CLIENTSECRET"] = spotifyClientSecret;
+        }
     });
 
 var lavalinkEndpoint = lavalink.GetEndpoint("http");

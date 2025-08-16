@@ -4,6 +4,7 @@ using Lavalink4NET.NetCord;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
@@ -17,6 +18,8 @@ namespace PuddleBot
         static async Task Main(string[] args)
         {
             var builder = Host.CreateApplicationBuilder(args);
+
+            builder.Logging.AddConsole();
 
             builder.Configuration
                .AddEnvironmentVariables()
@@ -78,7 +81,11 @@ namespace PuddleBot
 
         private static void WarnOptionalConfiguration(ConfigurationManager config)
         {
-            List<(string Key, string Message)> optionalKeys = [];
+            List<(string Key, string Message)> optionalKeys = 
+            [
+                ("Spotify:ClientId", "Spotify API client id."),
+                ("Spotify:ClientSecret", "Spotify API client secret.")
+            ];
 
             var missingKeys = optionalKeys.Where(x => string.IsNullOrEmpty(config[x.Key]));
 
