@@ -11,8 +11,11 @@ Settings can be supplied through environment variables or an appsettings.json fi
   },
 
   "Lavalink": {
-    "BaseAddress": "http://LAVALINK SERVER IP:PORT",
-    "Password": "YOUR LAVALINK SERVER PASSWORD"
+    "Password": "YOUR LAVALINK SERVER PASSWORD",
+
+    //If running through aspire locally, supply the Port, otherwise supply the BaseAddress
+    "Port": 7625,
+    "BaseAddress": "http://LAVALINK SERVER IP:PORT", 
   }
 }
 ```
@@ -27,16 +30,21 @@ You can pull the repo and complile the source yourself or use the image on [dock
 services:
   server:
     image: fredboat/lavalink
+    container_name: puddle-bot-lavalink
     restart: unless-stopped
     environment:
       #Lavalink server configuration
-      SERVER_PORT: 7625
-      SERVER_ADDRESS: 0.0.0.0
+      SERVER_PORT: 7625 # This can be any port
       LAVALINK_SERVER_PASSWORD: [YOUR LAVALINK SERVER PASSWORD HERE]
 
       #Recommended plugin for youtube support
       LAVALINK_SERVER_SOURCES_YOUTUBE: false
       LAVALINK_PLUGINS_0_DEPENDENCY: dev.lavalink.youtube:youtube-plugin:1.13.3
+      PLUGINS_YOUTUBE_ENABLED: true
+      PLUGINS_YOUTUBE_CLIENTS_0: MUSIC
+      PLUGINS_YOUTUBE_CLIENTS_1: ANDROID_VR
+      PLUGINS_YOUTUBE_CLIENTS_2: WEB
+      PLUGINS_YOUTUBE_CLIENTS_3: WEBEMBEDDED
 
       #Optional for spotify support
       #LAVALINK_PLUGINS_1_DEPENDENCY: com.github.topi314.lavasrc:lavasrc-plugin:4.7.1
@@ -47,11 +55,12 @@ services:
 
   bot:
     image: puddlebuddy/puddle-bot
+    container_name: puddle-bot
     restart: unless-stopped
     depends_on:
       - server
     environment:
       "Discord:Token": [YOUR DISCORD BOT TOKEN HERE]
-      "Lavalink:BaseAddress": http://[IP OF LAVALINK CONTAINER]:7625
-      "Lavalink:Password": [YOUR LAVALINK PASSWORD HERE]
+      "Lavalink:BaseAddress": http://server:7625
+      "Lavalink:Password": [YOUR LAVALINK SERVER PASSWORD HERE]
 ```
