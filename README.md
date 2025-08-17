@@ -46,12 +46,16 @@ services:
       PLUGINS_YOUTUBE_CLIENTS_2: WEB
       PLUGINS_YOUTUBE_CLIENTS_3: WEBEMBEDDED
 
-      #Optional for spotify support
+      #Optional for spotify or apple music support
       #LAVALINK_PLUGINS_1_DEPENDENCY: com.github.topi314.lavasrc:lavasrc-plugin:4.7.1
+
+      #Optional for spotify support
       #PLUGINS_LAVASRC_SOURCES_SPOTIFY: true
       #PLUGINS_LAVASRC_SPOTIFY_CLIENTID: [SPOTIFY API CLIENT ID]
       #PLUGINS_LAVASRC_SPOTIFY_CLIENTSECRET: [SPOTIFY API CLIENT SECRET]
-      #PLUGINS_LAVASRC_SPOTIDY_PREFERANONYMOUSTOKEN: true
+
+      #Optional for apple music support
+      #PLUGINS_LAVASRC_SOURCES_APPLEMUSIC: true
 
   bot:
     image: puddlebuddy/puddle-bot
