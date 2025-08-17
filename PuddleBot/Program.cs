@@ -1,5 +1,4 @@
-﻿using Lavalink4NET;
-using Lavalink4NET.Extensions;
+﻿using Lavalink4NET.Extensions;
 using Lavalink4NET.NetCord;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +8,9 @@ using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
+using NetCord.Rest;
 using PuddleBot.Context;
+using PuddleBot.Extensions;
 
 namespace PuddleBot
 {
@@ -51,6 +52,29 @@ namespace PuddleBot
                 .AddSlashCommand("ping", "Ping!", () => "Pong!")
                 .UseGatewayEventHandlers();
 
+            var gatewayClient = host.Services.GetRequiredService<GatewayClient>();
+            gatewayClient.Ready += async e =>
+            {
+                var restClient = host.Services.GetRequiredService<RestClient>();
+                var emojis = await restClient.GetApplicationEmojisAsync(e.ApplicationId);
+
+                foreach (var emoji in emojis)
+                {
+                    var emojiString = $"<:{emoji.Name}:{emoji.Id}>";
+
+                    _ = emoji.Name switch
+                    {
+                        "Youtube" => LavalinkTrackExtensions.YoutubeEmoji = emojiString,
+                        "Soundcloud" => LavalinkTrackExtensions.SoundCloudEmoji = emojiString,
+                        "Bandcamp" => LavalinkTrackExtensions.BandcampEmoji = emojiString,
+                        "Twitch" => LavalinkTrackExtensions.TwitchEmoji = emojiString,
+                        "AppleMusic" => LavalinkTrackExtensions.AppleMusicEmoji = emojiString,
+                        "Vimeo" => LavalinkTrackExtensions.VimeoEmoji = emojiString,
+                        _ => null
+                    };
+                }
+            };
+
             await host.RunAsync();
         }
 
@@ -83,7 +107,7 @@ namespace PuddleBot
         {
             List<(string Key, string Message)> optionalKeys = 
             [
-                ("Spotify:ClientId", "Spotify API client id."),
+                ("Spotify:ClientId", "Spotify API client id."), 
                 ("Spotify:ClientSecret", "Spotify API client secret.")
             ];
 

@@ -16,7 +16,7 @@ var lavalink = builder.AddContainer("lavalink", "fredboat/lavalink")
             ?? throw new InvalidOperationException("Lavalink:Password is not configured.");
     
         context.EnvironmentVariables["LAVALINK_SERVER_SOURCES_YOUTUBE"] = false;
-        context.EnvironmentVariables["LAVALINK_PLUGINS_0_DEPENDENCY"] = "dev.lavalink.youtube:youtube-plugin:1.13.3";
+        context.EnvironmentVariables["LAVALINK_PLUGINS_0_DEPENDENCY"] = "dev.lavalink.youtube:youtube-plugin:1.13.4";
         context.EnvironmentVariables["PLUGINS_YOUTUBE_ENABLED"] = true;
         context.EnvironmentVariables["PLUGINS_YOUTUBE_CLIENTS_0"] = "MUSIC";
         context.EnvironmentVariables["PLUGINS_YOUTUBE_CLIENTS_1"] = "ANDROID_VR";
@@ -28,7 +28,7 @@ var lavalink = builder.AddContainer("lavalink", "fredboat/lavalink")
 
         if (!string.IsNullOrEmpty(spotifyClientId) && !string.IsNullOrEmpty(spotifyClientSecret))
         {
-            context.EnvironmentVariables["LAVALINK_PLUGINS_1_DEPENDENCY"] = "com.github.topi314.lavasrc:lavasrc-plugin:4.7.1";
+            context.EnvironmentVariables["LAVALINK_PLUGINS_1_DEPENDENCY"] = "com.github.topi314.lavasrc:lavasrc-plugin:4.8.0";
             context.EnvironmentVariables["PLUGINS_LAVASRC_SOURCES_SPOTIFY"] = true;
             context.EnvironmentVariables["PLUGINS_LAVASRC_SOURCES_APPLEMUSIC"] = true;
             context.EnvironmentVariables["PLUGINS_LAVASRC_SPOTIFY_CLIENTID"] = spotifyClientId;

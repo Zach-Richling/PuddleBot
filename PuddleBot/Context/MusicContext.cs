@@ -1,9 +1,12 @@
 ﻿using Lavalink4NET;
-using NetCord.Rest;
-using System.Collections.Concurrent;
 using Lavalink4NET.Events.Players;
+using Lavalink4NET.Players;
+using Lavalink4NET.Players.Queued;
+using Microsoft.Extensions.Options;
 using NetCord;
+using NetCord.Rest;
 using PuddleBot.Extensions;
+using System.Collections.Concurrent;
 
 namespace PuddleBot.Context
 {
@@ -14,6 +17,40 @@ namespace PuddleBot.Context
 
         private readonly RestClient restClient;
 
+        private static readonly IOptions<QueuedLavalinkPlayerOptions> playerOptions = Options.Create(new QueuedLavalinkPlayerOptions()
+        {
+            DisconnectOnStop = true,
+            DisconnectOnDestroy = true,
+            ClearQueueOnStop = true,
+        });
+
+        private static readonly PlayerRetrieveOptions retrieveOptions = new PlayerRetrieveOptions()
+        {
+            ChannelBehavior = PlayerChannelBehavior.Join
+        };
+
+        public static InteractionMessageProperties EmbedMessage(string message) => new()
+        {
+            Embeds = [
+                new()
+                {
+                    Description = message,
+                    Color = new Color(230, 126, 34) //Orange
+                }
+            ]
+        };
+
+        public static MessageProperties EmbedMessageRest(string message) => new()
+        {
+            Embeds = [
+                new()
+                {
+                    Description = message,
+                    Color = new Color(230, 126, 34) //Orange
+                }
+            ]
+        };
+
         public MusicContext(IAudioService audioService, RestClient restClient)
         {
             audioService.TrackStarted += TrackStartedHandler;
@@ -22,16 +59,15 @@ namespace PuddleBot.Context
             this.restClient = restClient;
         }
 
-        private static MessageProperties EmbedMessage(string message) => new() 
-        {
-            Embeds = [
-                new()
-                {
-                    Description = message,
-                    Color = new Color(230, 126, 34) // Orange
-                }
-            ]
-        };
+        public async Task<PlayerResult<QueuedLavalinkPlayer>> GetPlayerAsync(ulong guildId, ulong? channelId = null) => await AudioService.Players.RetrieveAsync
+        (
+            guildId,
+            channelId,
+            playerFactory: PlayerFactory.Queued,
+            options: playerOptions,
+            retrieveOptions: retrieveOptions
+        );
+
         private async Task TrackStartedHandler(object sender, TrackStartedEventArgs args)
         {
             if (NowPlayingChannels.TryGetValue(args.Player.GuildId, out var value))
@@ -44,7 +80,18 @@ namespace PuddleBot.Context
                     }
 
                     var track = args.Track;
-                    var newMessageId = await restClient.SendMessageAsync(channelId, EmbedMessage($"Now Playing: {track.IconTitleTime()}"));
+                    var message = EmbedMessageRest($"Now Playing: {track.IconTitleTime()}");
+                    message.Components = 
+                    [
+                        new ActionRowProperties()
+                        {
+                            Buttons = [
+                                new ButtonProperties("skip-track", "Skip", ButtonStyle.Primary)
+                            ]
+                        }
+                    ];
+
+                    var newMessageId = await restClient.SendMessageAsync(channelId, message);
 
                     NowPlayingChannels.TryUpdate(
                         args.Player.GuildId,
@@ -61,7 +108,7 @@ namespace PuddleBot.Context
             {
                 if (value.channelId is ulong channelId)
                 {
-                    await restClient.SendMessageAsync(channelId, EmbedMessage($"Error: {args.Track.IconTitle()}. {args.Exception.Message}"));
+                    await restClient.SendMessageAsync(channelId, EmbedMessageRest($"Error: {args.Track.IconTitle()}. {args.Exception.Message}"));
                 }
             }
         }

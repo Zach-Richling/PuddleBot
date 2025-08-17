@@ -13,29 +13,6 @@ namespace PuddleBot.Modules
 {
     public class MusicModule(MusicContext musicContext) : ApplicationCommandModule<ApplicationCommandContext>
     {
-        private static readonly IOptions<QueuedLavalinkPlayerOptions> playerOptions = Options.Create(new QueuedLavalinkPlayerOptions()
-        {
-            DisconnectOnStop = true,
-            DisconnectOnDestroy = true,
-            ClearQueueOnStop = true,
-        });
-
-        private static readonly PlayerRetrieveOptions retrieveOptions = new PlayerRetrieveOptions()
-        {
-            ChannelBehavior = PlayerChannelBehavior.Join
-        };
-
-        private static InteractionMessageProperties EmbedMessage(string message) => new()
-        {
-            Embeds = [
-                new()
-                {
-                    Description = message,
-                    Color = new Color(230, 126, 34) //Orange
-                }
-            ]
-        };
-
         private static string GetErrorMessage(PlayerRetrieveStatus retrieveStatus) => retrieveStatus switch
         {
             PlayerRetrieveStatus.UserNotInVoiceChannel => "You are not connected to a voice channel.",
@@ -61,7 +38,7 @@ namespace PuddleBot.Modules
             var player = playerResult.Player;
             await player.PauseAsync();
 
-            await FollowupAsync(EmbedMessage($"Track has been paused"));
+            await FollowupAsync(MusicContext.EmbedMessage($"Track has been paused"));
         }
 
         [SlashCommand("resume", "Resumes the current track.", Contexts = [InteractionContextType.Guild])]
@@ -76,7 +53,7 @@ namespace PuddleBot.Modules
             var player = playerResult.Player;
             await player.ResumeAsync();
 
-            await FollowupAsync(EmbedMessage($"Track has been resumed"));
+            await FollowupAsync(MusicContext.EmbedMessage($"Track has been resumed"));
         }
 
         [SlashCommand("stop", "Stops playing tracks.", Contexts = [InteractionContextType.Guild])]
@@ -90,7 +67,7 @@ namespace PuddleBot.Modules
             var player = playerResult.Player;
             await player.StopAsync();
 
-            await FollowupAsync(EmbedMessage($"Stopped playback and cleared the queue."));
+            await FollowupAsync(MusicContext.EmbedMessage($"Stopped playback and cleared the queue."));
         }
 
         [SlashCommand("skip", "Skip the current track.", Contexts = [InteractionContextType.Guild])]
@@ -106,7 +83,7 @@ namespace PuddleBot.Modules
 
             if (player.CurrentTrack != null)
             {
-                await FollowupAsync(EmbedMessage($"Skipped: {player.CurrentTrack.IconTitle()}"));
+                await FollowupAsync(MusicContext.EmbedMessage($"Skipped: {player.CurrentTrack.IconTitle()}"));
             }
 
             await player.SkipAsync();
@@ -126,7 +103,7 @@ namespace PuddleBot.Modules
 
             if (nowPlaying == null)
             {
-                await FollowupAsync(EmbedMessage("There are no tracks in the queue."));
+                await FollowupAsync(MusicContext.EmbedMessage("There are no tracks in the queue."));
                 return;
             }
 
@@ -155,7 +132,7 @@ namespace PuddleBot.Modules
             builder.AppendLine();
             builder.AppendLine($"Total Time: {totalDuration:hh\\:mm\\:ss}");
 
-            await FollowupAsync(EmbedMessage(builder.ToString()));
+            await FollowupAsync(MusicContext.EmbedMessage(builder.ToString()));
         }
 
         [SlashCommand("clear", "Clears the queue.", Contexts = [InteractionContextType.Guild])]
@@ -171,7 +148,7 @@ namespace PuddleBot.Modules
             var queueCount = player.Queue.Count;
 
             await player.Queue.RemoveRangeAsync(0, queueCount);
-            await FollowupAsync(EmbedMessage($"Cleared: {queueCount} tracks"));
+            await FollowupAsync(MusicContext.EmbedMessage($"Cleared: {queueCount} tracks"));
         }
 
         [SlashCommand("shuffle", "Shuffles the queue.", Contexts = [InteractionContextType.Guild])]
@@ -186,22 +163,16 @@ namespace PuddleBot.Modules
             var player = playerResult.Player;
             player.Shuffle = !player.Shuffle;
 
-            await FollowupAsync(EmbedMessage($"Shuffle: {(player.Shuffle ? "On" : "Off")}"));
+            await FollowupAsync(MusicContext.EmbedMessage($"Shuffle: {(player.Shuffle ? "On" : "Off")}"));
         }
 
         private async Task<PlayerResult<QueuedLavalinkPlayer>> GetPlayerAsync(ulong? channelId = null)
         {
-            var playerResult = await musicContext.AudioService.Players.RetrieveAsync(
-                Context.Guild!.Id,
-                channelId,
-                playerFactory: PlayerFactory.Queued,
-                options: playerOptions,
-                retrieveOptions: retrieveOptions
-            );
+            var playerResult = await musicContext.GetPlayerAsync(Context.Guild!.Id, channelId);
 
             if (!playerResult.IsSuccess)
             {
-                await FollowupAsync(EmbedMessage(GetErrorMessage(playerResult.Status)));
+                await FollowupAsync(MusicContext.EmbedMessage(GetErrorMessage(playerResult.Status)));
             }
 
             return playerResult;
@@ -214,7 +185,7 @@ namespace PuddleBot.Modules
 
             if (!guild.VoiceStates.TryGetValue(Context.User.Id, out var voiceState))
             {
-                await FollowupAsync(EmbedMessage("You are not connected to any voice channel!"));
+                await FollowupAsync(MusicContext.EmbedMessage("You are not connected to any voice channel!"));
                 return;
             }
 
@@ -238,13 +209,13 @@ namespace PuddleBot.Modules
 
             if (tracks.IsFailed)
             {
-                await FollowupAsync(EmbedMessage($"Error: {tracks.Exception?.Message}"));
+                await FollowupAsync(MusicContext.EmbedMessage($"Error: {tracks.Exception?.Message}"));
                 return;
             }
 
             if (tracks.Count == 0)
             {
-                await FollowupAsync(EmbedMessage("Couldn't find any tracks."));
+                await FollowupAsync(MusicContext.EmbedMessage("Couldn't find any tracks."));
                 return;
             }
 
@@ -268,11 +239,11 @@ namespace PuddleBot.Modules
 
             if (tracks.Count > 1 && isValidUri)
             {
-                await FollowupAsync(EmbedMessage($"Queued: {tracks.Count} tracks"));
+                await FollowupAsync(MusicContext.EmbedMessage($"Queued: {tracks.Count} tracks"));
             }
             else
             {
-                await FollowupAsync(EmbedMessage($"Queued: {tracks.Track.IconTitle()}"));
+                await FollowupAsync(MusicContext.EmbedMessage($"Queued: {tracks.Track.IconTitle()}"));
             }
         }
 
