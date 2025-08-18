@@ -38,6 +38,17 @@ namespace PuddleBot.Modules
             var player = playerResult.Player;
             await player.PauseAsync();
 
+            if (musicContext.NowPlayingChannels.TryGetValue(player.GuildId, out var value))
+            {
+                if (value.Message is not null)
+                {
+                    await value.Message.ModifyAsync(m =>
+                    {
+                        m.Components = [musicContext.GetNowPlayingActionRow(true)];
+                    });
+                }
+            }
+
             await FollowupAsync(MusicContext.EmbedMessage($"Track has been paused"));
         }
 
@@ -52,6 +63,17 @@ namespace PuddleBot.Modules
 
             var player = playerResult.Player;
             await player.ResumeAsync();
+
+            if (musicContext.NowPlayingChannels.TryGetValue(player.GuildId, out var value))
+            {
+                if (value.Message is not null)
+                {
+                    await value.Message.ModifyAsync(m =>
+                    {
+                        m.Components = [musicContext.GetNowPlayingActionRow(false)];
+                    });
+                }
+            }
 
             await FollowupAsync(MusicContext.EmbedMessage($"Track has been resumed"));
         }
@@ -194,7 +216,7 @@ namespace PuddleBot.Modules
             musicContext.NowPlayingChannels.AddOrUpdate(
                 guild.Id,
                 key => (textChannelId, null),
-                (key, value) => value.channelId != textChannelId ? (textChannelId, null) : value
+                (key, value) => value.ChannelId != textChannelId ? (textChannelId, null) : value
             );
 
             var client = Context.Client;

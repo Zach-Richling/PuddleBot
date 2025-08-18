@@ -2,6 +2,7 @@
 using Lavalink4NET.Events.Players;
 using Lavalink4NET.Players;
 using Lavalink4NET.Players.Queued;
+using Lavalink4NET.Tracks;
 using Microsoft.Extensions.Options;
 using NetCord;
 using NetCord.Rest;
@@ -13,7 +14,7 @@ namespace PuddleBot.Context
     public class MusicContext
     {
         public IAudioService AudioService { get; }
-        public readonly ConcurrentDictionary<ulong, (ulong? channelId, ulong? messageId)> NowPlayingChannels = [];
+        public readonly ConcurrentDictionary<ulong, (ulong? ChannelId, RestMessage? Message)> NowPlayingChannels = [];
 
         private readonly RestClient restClient;
 
@@ -68,34 +69,44 @@ namespace PuddleBot.Context
             retrieveOptions: retrieveOptions
         );
 
+        public MessageProperties GetNowPlayingMessage(LavalinkTrack track, bool paused)
+        {
+            var message = EmbedMessageRest($"Now Playing: {track.IconTitleTime()}");
+            message.Components = [GetNowPlayingActionRow(paused)];
+            return message;
+        }
+
+        public ActionRowProperties GetNowPlayingActionRow(bool paused) => new ActionRowProperties()
+        {
+            Buttons =
+            [
+                new ButtonProperties("skip-track", "⏭", ButtonStyle.Primary),
+                paused ? new ButtonProperties("resume-track", "▶", ButtonStyle.Primary) : new ButtonProperties("pause-track", "⏸", ButtonStyle.Primary),
+                new ButtonProperties("volume-up", "🔊", ButtonStyle.Primary),
+                new ButtonProperties("volume-down", "🔉", ButtonStyle.Primary),
+                new ButtonProperties("stop-track", "⏹", ButtonStyle.Danger)
+            ]
+        };
+
         private async Task TrackStartedHandler(object sender, TrackStartedEventArgs args)
         {
             if (NowPlayingChannels.TryGetValue(args.Player.GuildId, out var value))
             {
-                if (value.channelId is ulong channelId)
+                if (value.ChannelId is ulong channelId)
                 {
-                    if (value.messageId is ulong messageId)
+                    if (value.Message is RestMessage message)
                     {
-                        await restClient.DeleteMessageAsync(channelId, messageId);
+                        await restClient.DeleteMessageAsync(channelId, message.Id);
                     }
 
                     var track = args.Track;
-                    var message = EmbedMessageRest($"Now Playing: {track.IconTitleTime()}");
-                    message.Components = 
-                    [
-                        new ActionRowProperties()
-                        {
-                            Buttons = [
-                                new ButtonProperties("skip-track", "Skip", ButtonStyle.Primary)
-                            ]
-                        }
-                    ];
+                    var newMessage = GetNowPlayingMessage(track, false);
 
-                    var newMessageId = await restClient.SendMessageAsync(channelId, message);
+                    var newMessageId = await restClient.SendMessageAsync(channelId, newMessage);
 
                     NowPlayingChannels.TryUpdate(
                         args.Player.GuildId,
-                        (channelId, newMessageId.Id),
+                        (channelId, newMessageId),
                         value
                     );
                 }
@@ -106,7 +117,7 @@ namespace PuddleBot.Context
         {
             if (NowPlayingChannels.TryGetValue(args.Player.GuildId, out var value))
             {
-                if (value.channelId is ulong channelId)
+                if (value.ChannelId is ulong channelId)
                 {
                     await restClient.SendMessageAsync(channelId, EmbedMessageRest($"Error: {args.Track.IconTitle()}. {args.Exception.Message}"));
                 }

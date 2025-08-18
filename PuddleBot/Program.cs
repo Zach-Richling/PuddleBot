@@ -4,11 +4,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NetCord;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
+using NetCord.Hosting.Services.ComponentInteractions;
 using NetCord.Rest;
+using NetCord.Services.ComponentInteractions;
 using PuddleBot.Context;
 using PuddleBot.Extensions;
 
@@ -37,6 +40,7 @@ namespace PuddleBot
                     opt.Intents = GatewayIntents.AllNonPrivileged;
                 })
                 .AddApplicationCommands()
+                .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
                 .AddLavalink()
                 .ConfigureLavalink(opt =>
                 {
