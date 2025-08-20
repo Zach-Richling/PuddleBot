@@ -8,6 +8,7 @@ using NetCord;
 using NetCord.Gateway;
 using NetCord.Rest;
 using PuddleBot.Extensions;
+using PuddleBot.Modules;
 using System.Collections.Concurrent;
 
 namespace PuddleBot.Context
@@ -92,11 +93,11 @@ namespace PuddleBot.Context
         {
             Buttons =
             [
-                new ButtonProperties("skip-track", "⏭", ButtonStyle.Primary),
-                paused ? new ButtonProperties("resume-track", "▶", ButtonStyle.Primary) : new ButtonProperties("pause-track", "⏸", ButtonStyle.Primary),
-                new ButtonProperties("volume-up", "🔊", ButtonStyle.Primary),
-                new ButtonProperties("volume-down", "🔉", ButtonStyle.Primary),
-                new ButtonProperties("stop-track", "⏹", ButtonStyle.Danger)
+                new ButtonProperties(NowPlayingModule.SkipId, "⏭", ButtonStyle.Primary),
+                paused ? new ButtonProperties(NowPlayingModule.ResumeId, "▶", ButtonStyle.Primary) : new ButtonProperties(NowPlayingModule.PauseId, "⏸", ButtonStyle.Primary),
+                new ButtonProperties(NowPlayingModule.VolumeUpId, "🔊", ButtonStyle.Primary),
+                new ButtonProperties(NowPlayingModule.VolumeDownId, "🔉", ButtonStyle.Primary),
+                new ButtonProperties(NowPlayingModule.StopId, "⏹", ButtonStyle.Danger)
             ]
         };
 

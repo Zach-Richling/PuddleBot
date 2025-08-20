@@ -14,16 +14,16 @@ namespace PuddleBot.Modules
 {
     public class NowPlayingModule(MusicContext musicContext) : ComponentInteractionModule<ButtonInteractionContext>
     {
-        public static class NowPlayingInteractions
-        {
-            public const string SkipTrack = "skip-track";
-        }
+        public const string SkipId = "skip-track";
+        public const string PauseId = "pause-track";
+        public const string ResumeId = "resume-track";
+        public const string VolumeUpId = "volume-up";
+        public const string VolumeDownId = "volume-down";
+        public const string StopId = "stop-track";
 
-        [ComponentInteraction("skip-track")]
+        [ComponentInteraction(SkipId)]
         public async Task SkipButton()
         {
-            await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Loading));
-
             var guild = Context.Guild!;
             var playerResult = await musicContext.GetPlayerAsync(guild.Id);
             
@@ -36,17 +36,15 @@ namespace PuddleBot.Modules
 
             if (player.CurrentTrack != null)
             {
-                await FollowupAsync(MusicContext.EmbedMessage($"Skipped: {player.CurrentTrack.IconTitle()}", Context.User));
+                await RespondAsync($"Skipped: {player.CurrentTrack.IconTitle()}", Context.User);
             }
 
             await player.SkipAsync();
         }
 
-        [ComponentInteraction("pause-track")]
+        [ComponentInteraction(PauseId)]
         public async Task PauseButton()
         {
-            await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Loading));
-
             var guild = Context.Guild!;
             var playerResult = await musicContext.GetPlayerAsync(guild.Id);
 
@@ -59,7 +57,7 @@ namespace PuddleBot.Modules
 
             if (player.IsPaused)
             {
-                await FollowupAsync(MusicContext.EmbedMessage($"The track is already paused.", Context.User));
+                await RespondAsync("The track is already paused.", Context.User);
             } 
             else
             {
@@ -76,15 +74,13 @@ namespace PuddleBot.Modules
                     }
                 }
 
-                await FollowupAsync(MusicContext.EmbedMessage($"Playback has been paused.", Context.User));
+                await RespondAsync("Playback has been paused.", Context.User);
             }
         }
 
-        [ComponentInteraction("resume-track")]
+        [ComponentInteraction(ResumeId)]
         public async Task ResumeButton()
         {
-            await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Loading));
-
             var guild = Context.Guild!;
             var playerResult = await musicContext.GetPlayerAsync(guild.Id);
 
@@ -97,7 +93,7 @@ namespace PuddleBot.Modules
 
             if (!player.IsPaused)
             {
-                await FollowupAsync(MusicContext.EmbedMessage($"The track is already playing.", Context.User));
+                await RespondAsync("The track is already playing.", Context.User);
             }
             else
             {
@@ -114,15 +110,13 @@ namespace PuddleBot.Modules
                     }
                 }
 
-                await FollowupAsync(MusicContext.EmbedMessage($"Playback has been resumed.", Context.User));
+                await RespondAsync("Playback has been resumed.", Context.User);
             }
         }
 
-        [ComponentInteraction("volume-up")]
+        [ComponentInteraction(VolumeUpId)]
         public async Task VolumeUpButton()
         {
-            await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Loading));
-
             var guild = Context.Guild!;
             var playerResult = await musicContext.GetPlayerAsync(guild.Id);
 
@@ -135,14 +129,13 @@ namespace PuddleBot.Modules
 
             var newVolume = player.Volume + 0.1f;
             await player.SetVolumeAsync(newVolume);
-            await FollowupAsync(MusicContext.EmbedMessage($"Volume has been increased to {Math.Round(newVolume * 100)}%.", Context.User));
+
+            await RespondAsync($"Volume has been increased to {Math.Round(newVolume * 100)}%.", Context.User);
         }
 
-        [ComponentInteraction("volume-down")]
+        [ComponentInteraction(VolumeDownId)]
         public async Task VolumeDownButton()
         {
-            await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Loading));
-
             var guild = Context.Guild!;
             var playerResult = await musicContext.GetPlayerAsync(guild.Id);
 
@@ -155,14 +148,13 @@ namespace PuddleBot.Modules
 
             var newVolume = player.Volume - 0.1f;
             await player.SetVolumeAsync(newVolume);
-            await FollowupAsync(MusicContext.EmbedMessage($"Volume has been decreased to {Math.Round(newVolume * 100)}%.", Context.User));
+
+            await RespondAsync($"Volume has been decreased to {Math.Round(newVolume * 100)}%.", Context.User);
         }
 
-        [ComponentInteraction("stop-track")]
+        [ComponentInteraction(StopId)]
         public async Task StopButton()
         {
-            await RespondAsync(InteractionCallback.DeferredMessage(MessageFlags.Loading));
-
             var guild = Context.Guild!;
             var playerResult = await musicContext.GetPlayerAsync(guild.Id);
 
@@ -174,7 +166,10 @@ namespace PuddleBot.Modules
             var player = playerResult.Player;
 
             await player.StopAsync();
-            await FollowupAsync(MusicContext.EmbedMessage($"Playback has been stopped.", Context.User));
+            await RespondAsync("Playback has been stopped.", Context.User);
         }
+
+        private async Task RespondAsync(string message, User? discordUser = null) => 
+            await base.RespondAsync(InteractionCallback.Message(MusicContext.EmbedMessage(message, discordUser)));
     }
 }
