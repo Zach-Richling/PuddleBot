@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace PuddleBot.Modules
 {
-    public class NowPlayingModule(MusicContext musicContext, RestClient client) : ComponentInteractionModule<ButtonInteractionContext>
+    public class NowPlayingModule(MusicContext musicContext) : ComponentInteractionModule<ButtonInteractionContext>
     {
         public static class NowPlayingInteractions
         {
@@ -36,7 +36,7 @@ namespace PuddleBot.Modules
 
             if (player.CurrentTrack != null)
             {
-                await FollowupAsync(MusicContext.EmbedMessage($"Skipped: {player.CurrentTrack.IconTitle()}"));
+                await FollowupAsync(MusicContext.EmbedMessage($"Skipped: {player.CurrentTrack.IconTitle()}", Context.User));
             }
 
             await player.SkipAsync();
@@ -59,7 +59,7 @@ namespace PuddleBot.Modules
 
             if (player.IsPaused)
             {
-                await FollowupAsync(MusicContext.EmbedMessage($"The track is already paused."));
+                await FollowupAsync(MusicContext.EmbedMessage($"The track is already paused.", Context.User));
             } 
             else
             {
@@ -71,12 +71,12 @@ namespace PuddleBot.Modules
                     {
                         await value.Message.ModifyAsync(m =>
                         {
-                            m.Components = [musicContext.GetNowPlayingActionRow(true)];
+                            m.Components = [MusicContext.GetNowPlayingActionRow(true)];
                         });
                     }
                 }
 
-                await FollowupAsync(MusicContext.EmbedMessage($"Playback has been paused."));
+                await FollowupAsync(MusicContext.EmbedMessage($"Playback has been paused.", Context.User));
             }
         }
 
@@ -97,7 +97,7 @@ namespace PuddleBot.Modules
 
             if (!player.IsPaused)
             {
-                await FollowupAsync(MusicContext.EmbedMessage($"The track is already playing."));
+                await FollowupAsync(MusicContext.EmbedMessage($"The track is already playing.", Context.User));
             }
             else
             {
@@ -109,12 +109,12 @@ namespace PuddleBot.Modules
                     {
                         await value.Message.ModifyAsync(m =>
                         {
-                            m.Components = [musicContext.GetNowPlayingActionRow(false)];
+                            m.Components = [MusicContext.GetNowPlayingActionRow(false)];
                         });
                     }
                 }
 
-                await FollowupAsync(MusicContext.EmbedMessage($"Playback has been resumed."));
+                await FollowupAsync(MusicContext.EmbedMessage($"Playback has been resumed.", Context.User));
             }
         }
 
@@ -135,7 +135,7 @@ namespace PuddleBot.Modules
 
             var newVolume = player.Volume + 0.1f;
             await player.SetVolumeAsync(newVolume);
-            await FollowupAsync(MusicContext.EmbedMessage($"Volume has been increased to {Math.Round(newVolume * 100)}%."));
+            await FollowupAsync(MusicContext.EmbedMessage($"Volume has been increased to {Math.Round(newVolume * 100)}%.", Context.User));
         }
 
         [ComponentInteraction("volume-down")]
@@ -155,7 +155,7 @@ namespace PuddleBot.Modules
 
             var newVolume = player.Volume - 0.1f;
             await player.SetVolumeAsync(newVolume);
-            await FollowupAsync(MusicContext.EmbedMessage($"Volume has been decreased to {Math.Round(newVolume * 100)}%."));
+            await FollowupAsync(MusicContext.EmbedMessage($"Volume has been decreased to {Math.Round(newVolume * 100)}%.", Context.User));
         }
 
         [ComponentInteraction("stop-track")]
@@ -174,7 +174,7 @@ namespace PuddleBot.Modules
             var player = playerResult.Player;
 
             await player.StopAsync();
-            await FollowupAsync(MusicContext.EmbedMessage($"Playback has been stopped."));
+            await FollowupAsync(MusicContext.EmbedMessage($"Playback has been stopped.", Context.User));
         }
     }
 }

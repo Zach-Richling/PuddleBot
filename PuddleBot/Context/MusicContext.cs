@@ -5,6 +5,7 @@ using Lavalink4NET.Players.Queued;
 using Lavalink4NET.Tracks;
 using Microsoft.Extensions.Options;
 using NetCord;
+using NetCord.Gateway;
 using NetCord.Rest;
 using PuddleBot.Extensions;
 using System.Collections.Concurrent;
@@ -30,24 +31,34 @@ namespace PuddleBot.Context
             ChannelBehavior = PlayerChannelBehavior.Join
         };
 
-        public static InteractionMessageProperties EmbedMessage(string message) => new()
+        public static InteractionMessageProperties EmbedMessage(string message, User? discordUser = null) => new()
         {
             Embeds = [
                 new()
                 {
                     Description = message,
-                    Color = new Color(230, 126, 34) //Orange
+                    Color = new Color(230, 126, 34), //Orange
+                    Author = discordUser != null ? new() 
+                    {
+                        IconUrl = discordUser.GetAvatarUrl()?.ToString(),
+                        Name = discordUser.GlobalName
+                    } : null
                 }
             ]
         };
 
-        public static MessageProperties EmbedMessageRest(string message) => new()
+        public static MessageProperties EmbedMessageRest(string message, User? discordUser = null) => new()
         {
             Embeds = [
                 new()
                 {
                     Description = message,
-                    Color = new Color(230, 126, 34) //Orange
+                    Color = new Color(230, 126, 34), //Orange
+                    Author = discordUser != null ? new()
+                    {
+                        IconUrl = discordUser.GetAvatarUrl()?.ToString(),
+                        Name = discordUser.GlobalName
+                    } : null
                 }
             ]
         };
@@ -56,6 +67,7 @@ namespace PuddleBot.Context
         {
             audioService.TrackStarted += TrackStartedHandler;
             audioService.TrackException += TrackExceptionHandler;
+            audioService.TrackEnded += TrackEndedHandler;
             AudioService = audioService;
             this.restClient = restClient;
         }
@@ -69,14 +81,14 @@ namespace PuddleBot.Context
             retrieveOptions: retrieveOptions
         );
 
-        public MessageProperties GetNowPlayingMessage(LavalinkTrack track, bool paused)
+        public static MessageProperties GetNowPlayingMessage(LavalinkTrack track, bool paused)
         {
             var message = EmbedMessageRest($"Now Playing: {track.IconTitleTime()}");
             message.Components = [GetNowPlayingActionRow(paused)];
             return message;
         }
 
-        public ActionRowProperties GetNowPlayingActionRow(bool paused) => new ActionRowProperties()
+        public static ActionRowProperties GetNowPlayingActionRow(bool paused) => new ActionRowProperties()
         {
             Buttons =
             [
@@ -109,6 +121,18 @@ namespace PuddleBot.Context
                         (channelId, newMessageId),
                         value
                     );
+                }
+            }
+        }
+
+        private async Task TrackEndedHandler(object sender, TrackEndedEventArgs args)
+        {
+            if (NowPlayingChannels.TryGetValue(args.Player.GuildId, out var value))
+            {
+                if (value.Message != null && args.Player.CurrentTrack == null)
+                {
+                    await restClient.DeleteMessageAsync(value.Message.ChannelId, value.Message.Id);
+                    NowPlayingChannels.Remove(args.Player.GuildId, out _);
                 }
             }
         }
