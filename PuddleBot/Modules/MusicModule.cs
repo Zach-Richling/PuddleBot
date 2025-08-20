@@ -44,7 +44,7 @@ namespace PuddleBot.Modules
                 {
                     await value.Message.ModifyAsync(m =>
                     {
-                        m.Components = [musicContext.GetNowPlayingActionRow(true)];
+                        m.Components = [MusicContext.GetNowPlayingActionRow(true)];
                     });
                 }
             }
@@ -70,7 +70,7 @@ namespace PuddleBot.Modules
                 {
                     await value.Message.ModifyAsync(m =>
                     {
-                        m.Components = [musicContext.GetNowPlayingActionRow(false)];
+                        m.Components = [MusicContext.GetNowPlayingActionRow(false)];
                     });
                 }
             }
