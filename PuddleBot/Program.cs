@@ -74,6 +74,7 @@ namespace PuddleBot
                         "Twitch" => LavalinkTrackExtensions.TwitchEmoji = emojiString,
                         "AppleMusic" => LavalinkTrackExtensions.AppleMusicEmoji = emojiString,
                         "Vimeo" => LavalinkTrackExtensions.VimeoEmoji = emojiString,
+                        "Spotify" => LavalinkTrackExtensions.SpotifyEmoji = emojiString,
                         _ => null
                     };
                 }
@@ -84,7 +85,7 @@ namespace PuddleBot
 
         private static void VerifyRequiredConfiguration(ConfigurationManager config)
         {
-            List<(string Key, string Message)> requiredKeys = 
+            List<(string Key, string Message)> requiredKeys =
             [
                 ("Discord:Token", "The token used to login to the discord bot user."),
                 ("Lavalink:BaseAddress", "The URL and port of your lavalink server."),
@@ -109,9 +110,9 @@ namespace PuddleBot
 
         private static void WarnOptionalConfiguration(ConfigurationManager config)
         {
-            List<(string Key, string Message)> optionalKeys = 
+            List<(string Key, string Message)> optionalKeys =
             [
-                ("Spotify:ClientId", "Spotify API client id."), 
+                ("Spotify:ClientId", "Spotify API client id."),
                 ("Spotify:ClientSecret", "Spotify API client secret.")
             ];
 

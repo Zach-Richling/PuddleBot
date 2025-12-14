@@ -10,18 +10,20 @@ namespace PuddleBot.Extensions
         public static string TwitchEmoji { get; set; } = string.Empty;
         public static string AppleMusicEmoji { get; set; } = string.Empty;
         public static string VimeoEmoji { get; set; } = string.Empty;
+        public static string SpotifyEmoji { get; set; } = string.Empty;
 
         public static string IconTitle(this LavalinkTrack track) => $"{GetSourceIcon(track)} {track.Title}";
         public static string IconTitleTime(this LavalinkTrack track) => $"{GetSourceIcon(track)} {track.Title}. ({track.Duration:hh\\:mm\\:ss})";
-        
+
         private static string GetSourceIcon(LavalinkTrack track) => track.SourceName switch
-        { 
+        {
             "youtube" => YoutubeEmoji,
             "soundcloud" => SoundCloudEmoji,
             "bandcamp" => BandcampEmoji,
             "twitch" => TwitchEmoji,
             "applemusic" => AppleMusicEmoji,
             "vimeo" => VimeoEmoji,
+            "spotify" => SpotifyEmoji,
             _ => string.Empty
         };
     }
