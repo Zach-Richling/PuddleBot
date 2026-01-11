@@ -1,7 +1,6 @@
 ﻿using Lavalink4NET.Players;
 using Lavalink4NET.Players.Queued;
 using Lavalink4NET.Rest.Entities.Tracks;
-using Microsoft.Extensions.Options;
 using NetCord;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
@@ -186,6 +185,24 @@ namespace PuddleBot.Modules
             player.Shuffle = !player.Shuffle;
 
             await FollowupAsync(MusicContext.EmbedMessage($"Shuffle: {(player.Shuffle ? "On" : "Off")}"));
+        }
+
+        [SlashCommand("repeat", "Toggle repeat mode.", Contexts = [InteractionContextType.Guild])]
+        public async Task Repeat()
+        {
+            await RespondLoadingAsync();
+
+            var playerResult = await GetPlayerAsync();
+            if (!playerResult.IsSuccess)
+                return;
+
+            var player = playerResult.Player;
+
+            player.RepeatMode = player.RepeatMode != TrackRepeatMode.Track
+                ? TrackRepeatMode.Track
+                : TrackRepeatMode.None;
+
+            await FollowupAsync(MusicContext.EmbedMessage($"Repeat: {(player.RepeatMode == TrackRepeatMode.Track ? "On" : "Off")}"));
         }
 
         private async Task<PlayerResult<QueuedLavalinkPlayer>> GetPlayerAsync(ulong? channelId = null)

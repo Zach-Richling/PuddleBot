@@ -5,7 +5,6 @@ using Lavalink4NET.Players.Queued;
 using Lavalink4NET.Tracks;
 using Microsoft.Extensions.Options;
 using NetCord;
-using NetCord.Gateway;
 using NetCord.Rest;
 using PuddleBot.Extensions;
 using PuddleBot.Modules;
@@ -24,7 +23,7 @@ namespace PuddleBot.Context
         {
             DisconnectOnStop = true,
             DisconnectOnDestroy = true,
-            ClearQueueOnStop = true,
+            ClearQueueOnStop = true
         });
 
         private static readonly PlayerRetrieveOptions retrieveOptions = new PlayerRetrieveOptions()
@@ -39,7 +38,7 @@ namespace PuddleBot.Context
                 {
                     Description = message,
                     Color = new Color(230, 126, 34), //Orange
-                    Author = discordUser != null ? new() 
+                    Author = discordUser != null ? new()
                     {
                         IconUrl = discordUser.GetAvatarUrl()?.ToString(),
                         Name = discordUser.GlobalName
