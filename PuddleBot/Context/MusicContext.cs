@@ -90,7 +90,7 @@ namespace PuddleBot.Context
 
         public static ActionRowProperties GetNowPlayingActionRow(bool paused) => new ActionRowProperties()
         {
-            Buttons =
+            Components =
             [
                 new ButtonProperties(NowPlayingModule.SkipId, "⏭", ButtonStyle.Primary),
                 paused ? new ButtonProperties(NowPlayingModule.ResumeId, "▶", ButtonStyle.Primary) : new ButtonProperties(NowPlayingModule.PauseId, "⏸", ButtonStyle.Primary),

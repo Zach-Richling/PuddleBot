@@ -1,14 +1,8 @@
 ﻿using NetCord;
-using NetCord.Gateway;
 using NetCord.Rest;
 using NetCord.Services.ComponentInteractions;
 using PuddleBot.Context;
 using PuddleBot.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PuddleBot.Modules
 {
@@ -26,12 +20,12 @@ namespace PuddleBot.Modules
         {
             var guild = Context.Guild!;
             var playerResult = await musicContext.GetPlayerAsync(guild.Id);
-            
+
             if (!playerResult.IsSuccess)
             {
                 return;
             }
-            
+
             var player = playerResult.Player;
 
             if (player.CurrentTrack != null)
@@ -58,7 +52,7 @@ namespace PuddleBot.Modules
             if (player.IsPaused)
             {
                 await RespondAsync("The track is already paused.", Context.User);
-            } 
+            }
             else
             {
                 await player.PauseAsync();
@@ -169,7 +163,7 @@ namespace PuddleBot.Modules
             await RespondAsync("Playback has been stopped.", Context.User);
         }
 
-        private async Task RespondAsync(string message, User? discordUser = null) => 
+        private async Task RespondAsync(string message, User? discordUser = null) =>
             await base.RespondAsync(InteractionCallback.Message(MusicContext.EmbedMessage(message, discordUser)));
     }
 }

@@ -52,9 +52,9 @@ namespace PuddleBot
                 .AddSingleton<MusicContext>();
 
             var host = builder.Build()
-                .AddModules(typeof(Program).Assembly)
-                .AddSlashCommand("ping", "Ping!", () => "Pong!")
-                .UseGatewayEventHandlers();
+                .AddModules(typeof(Program).Assembly);
+
+            host.AddSlashCommand("ping", "Ping!", () => "Pong!");
 
             var gatewayClient = host.Services.GetRequiredService<GatewayClient>();
             gatewayClient.Ready += async e =>
